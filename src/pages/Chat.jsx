@@ -23,29 +23,63 @@ export const Chat = ({ verChat, setVerChat }) => {
     // Actualizar el estado para mostrar el mensaje de carga y bloquear el envío
     setIsSending(true);
     setLoadingMessage('Enviando mensaje...');
-
-    // Mostrar el mensaje del asistente después de 10 segundos
-    lectorAgenteIA({ "question": inputText })
-      .then((response) => {
-        console.log(response);
-        return checkAgenteIA(crearPrompt(inputText, response))
-      })
-      .then((response) => {
-        console.log(response);
-        setMessageHistory((prevMessageHistory) => {
-          const asistenteMessage = { type: 'asistente', text: response };
-          return [...prevMessageHistory, asistenteMessage];
-        });
-      })
-      .finally(() => {
-        // Limpiar el input y restaurar el estado
-        setInputText('');
-        setIsSending(false);
-        setLoadingMessage('');
+    
+    const cleanQuestion = sanitizeQuestion(inputText)
+    console.log(cleanQuestion)
+    if (cleanQuestion) {
+      // Pregunta válida, generar prompt
+      // Mostrar el mensaje del asistente después de 10 segundos
+    lectorAgenteIA({ "question": cleanQuestion })
+    .then((response) => {
+      console.log(response);
+      return checkAgenteIA(crearPrompt(inputText, response))
+    })
+    .then((response) => {
+      console.log(response);
+      setMessageHistory((prevMessageHistory) => {
+        const asistenteMessage = { type: 'asistente', text: response };
+        return [...prevMessageHistory, asistenteMessage];
       });
-    // Limpiar el input
+    })
+    .finally(() => {
+      // Limpiar el input y restaurar el estado
+      setInputText('');
+      setIsSending(false);
+      setLoadingMessage('');
+    });
+  } else {
+    // Caracteres inválidos, no generar prompt
+    setMessageHistory((prevMessageHistory) => {
+      const asistenteMessage = { type: 'asistente', text: "Por favor realiza una pregunta valida" };
+      return [...prevMessageHistory, asistenteMessage];
+    });
     setInputText('');
-  };
+    setIsSending(false);
+    setLoadingMessage('');
+  }
+  // Limpiar el input
+  setInputText('');
+};    
+    
+function sanitizeQuestion(question) {
+  // Expresión regular que permite letras, números, espacios y algunos signos de puntuación
+  // hasta 100 caracteres
+  const regex = /^[a-zA-Z0-9\s?!,.'\-áéíóúñÑ]{1,100}$/u;
+
+  // Convertir a minúsculas y remover espacios al inicio/final
+  let sanitized = question.toLowerCase().trim();
+
+  // Reemplazar cualquier caracter no válido por cadena vacía
+  sanitized = sanitized.replace(/[^a-zA-Z0-9\s?!,.'\-áéíóúñÑ]/ug, '');
+
+  // Validar con expresión regular
+  if (!regex.test(sanitized)) {
+    return null;
+  }
+
+  return sanitized;
+}
+
 
   return (
     <div className={`bg-white w-80 h-[450px] fixed bottom-0 right-0 rounded-lg flex flex-col justify-between ${verChat ? '' : 'hidden'}`}>

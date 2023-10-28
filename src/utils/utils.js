@@ -1,4 +1,4 @@
-const CHATGPT_KEY = 'sk-apikey'
+const CHATGPT_KEY = 'sk-PifWreux5yk3FbPvEriB82MLrvHP'
 
 export async function checkAgenteIA(mensage) {
   const bodyRequest = {
