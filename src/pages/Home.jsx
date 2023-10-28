@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import bcp from '../assets/LogoBcp.png'
 import candado from '../assets/candado.png'
 import dinero from '../assets/dinero.png'
@@ -8,6 +8,10 @@ import asistente from '../assets/img_asistente.png'
 import { Chat } from './Chat'
 
 export const Home = () => {
+  const [verChat, setVerChat] = useState(true)
+
+
+
   return (
     <>
       <header className='mx-16 my-2'>
@@ -50,12 +54,12 @@ export const Home = () => {
         <div className='flex justify-between items-center'>
           <div></div>
           <h2 className='text-4xl text-[#002DA0]'>Hola, ¿que necesitas hacer hoy?</h2>
-          <div>
+          <div onClick={()=>setVerChat(!verChat)}>
             <img className='w-20  cursor-pointer' src={asistente} alt="" />
           </div>
 
         </div>
-        <Chat/>
+        <Chat verChat={verChat} setVerChat ={setVerChat}/>
       </main>
     </>
   )
