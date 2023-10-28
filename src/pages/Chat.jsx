@@ -5,6 +5,7 @@ import flecha from '../assets/flecha_blanca.png'
 import carita from '../assets/happy.png'
 import enviar from '../assets/send.png'
 import user from '../assets/user.png'
+import { checkAgenteIA, crearPrompt } from '../utils/utils'
 
 
 export const Chat = ({ verChat, setVerChat }) => {
@@ -18,15 +19,20 @@ export const Chat = ({ verChat, setVerChat }) => {
     }
     // Agregar el mensaje del usuario al historial
     setMessageHistory([...messageHistory, { type: 'user', text: inputText }]);
-    // Limpiar el input
-    setInputText('');
+   
+    
     // Mostrar el mensaje del asistente después de 10 segundos
-    setTimeout(() => {
-      setMessageHistory((prevMessageHistory) => {
-        const asistenteMessage = { type: 'asistente', text: 'Respuesta del asistente' };
-        return [...prevMessageHistory, asistenteMessage];
-      });
-    }, 2000);
+    checkAgenteIA(crearPrompt(inputText))
+      .then((res)=>{
+        console.log(res)
+
+        setMessageHistory((prevMessageHistory) => {
+          const asistenteMessage = { type: 'asistente', text: res };
+          return [...prevMessageHistory, asistenteMessage];
+        });
+      })
+     // Limpiar el input
+    setInputText('');
   };
 
   return (
