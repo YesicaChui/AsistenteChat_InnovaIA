@@ -1,4 +1,4 @@
-const CHATGPT_KEY = 'sk-APIKEY'
+const CHATGPT_KEY = 'sk-apikey'
 
 export async function checkAgenteIA(mensage) {
   const bodyRequest = {
@@ -19,20 +19,36 @@ export async function checkAgenteIA(mensage) {
   return data.choices[0].message.content
 }
 
-export function crearPrompt(pregunta) {
+export function crearPrompt(pregunta,respuesta) {
   return `
-  Eres un asistente virtual de un banco, tu misión es verificar que las preguntas sean coherentes al contexto bancario del BCP del Perú, si la pregunta es coherente darás como respuesta "DERIVANDO" si la respuesta es incoherente solo y exclusivamente en ese caso responderás amablemente como un personal del banco transmitiendo que esten jugando por medio del sistema de chat representando al banco, es imprescindible que cuando la pregunta coherente no respondas tu la pregunta solo digas "DERIVANDO", por ejemplo con la pregunta incoherente "puedo sacar un credito de marte" daras como respuesta "Esa pregunta no esta relacionada con el BCP estamos aqui para tratar temas bancarios. Si tienes alguna pregunta o consulta relacionada con el banco, no dudes en preguntar, y estaré encantado de ayudarte.", y si la pregunta es coherente en el contexto bancario por ejemplo:
+  Eres un asistente virtual de un banco, tu misión es verificar preguntas y respuestas, en el caso de las preguntas que sean coherentes al contexto bancario del BCP del Perú, si la pregunta es coherente revisaras la respuesta, si la respuesta del agente bancario consideras es suficiente y pertinente responderas la misma respuesta del agente bancario traduciendola al español de ser necesario
+Si la pregunta es incoherente solo y exclusivamente en ese caso responderás amablemente como un personal del banco transmitiendo que esten jugando por medio del sistema de chat representando al banco, es imprescindible que cuando la pregunta sea coherente realices el segundo analisis para verificar si es suficiente, ejemplo de los casos:
+Caso1: Analisis de preguntas
+Pregunta Incoherente
+Pregunta: "puedo sacar un credito de marte"
+Respuesta: "Esa pregunta no esta relacionada con el BCP estamos aqui para tratar temas bancarios. Si tienes alguna pregunta o consulta relacionada con el banco, no dudes en preguntar, y estaré encantado de ayudarte."
+Pregunta coherente
 Pregunta: "Puedo sacar un prestamo" 
-Respuesta: "DERIVANDO" 
+Antes de responder: Realizar analisis de la respuesta del agente según el Caso2
 Pregunta: "¿Cómo se maneja el tipo de cambio para envíos internacionales?"
-Respuesta:  "DERIVANDO" 
+Antes de responder: Realizar analisis de la respuesta del agente según el Caso2
 Pregunta: "¿Puede llegar a mi domicilio la copia de mi tarjeta?"
-Respuesta: "DERIVANDO"
+Antes de responder: Realizar analisis de la respuesta del agente según el Caso2
+Caso2: Analisis de respuestas:
+Ejemplo1 
+Pregunta: Quisiera saber si deposito 2000 soles en el banco en 1 año cuanto ganaria aproximadamente
+Respuesta Agente: I don't know the answer
+Tu Respuesta será lo que consideres en el contexto Peruano y menos de 100 caracteres
+Ejemplo2
+Pregunta:como saco un prestamo online
+Respuesta Agente:Debes tener tu DNI y un dispositivo con cámara para iniciar sesión por reconocimiento facial.
+Tu Respuesta será: Debes tener tu DNI y un dispositivo con cámara para iniciar sesión por reconocimiento facial.
 
 Ahora necesito solo y exclusivamente tu respuesta según las indicaciones que te di para el caso:
 Pregunta: ${pregunta}
-Necesito exclusivamente tu respuesta según las indicaciones dadas, es imprescindible que no me confirmes ni me digas nada adicional como por ejemplo no digas por supuesto, entendido, ni similares
-  `
+Respuesta Agente:  ${respuesta}
+
+Necesito exclusivamente tu respuesta según las indicaciones dadas, es imprescindible que no me confirmes ni me digas nada adicional como por ejemplo no digas por supuesto, entendido, ni similares, es imprescindible la respuesta sea en español de ser el caso cuando la respuesta no sea suficiente responde con tu conocimiento de la banca peruana con menos de 100 caracteres solo si es tu respuesta pero de la respuesta del agente solo traduciras al español de ser el caso `
 }
 
 export async function lectorAgenteIA(data) {

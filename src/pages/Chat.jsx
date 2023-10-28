@@ -11,39 +11,38 @@ import { checkAgenteIA, crearPrompt, lectorAgenteIA } from '../utils/utils'
 export const Chat = ({ verChat, setVerChat }) => {
   const [inputText, setInputText] = useState(''); // Estado para el texto del input
   const [messageHistory, setMessageHistory] = useState([]); // Historial de mensajes
-
+  const [isSending, setIsSending] = useState(false); // Nuevo estado para controlar el envío
+  const [loadingMessage, setLoadingMessage] = useState('');
   // Función para manejar el envío del mensaje del usuario
   const handleSendMessage = () => {
-    if (inputText.trim() === '') {
+    if (inputText.trim() === '' || isSending) {
       return;
     }
     // Agregar el mensaje del usuario al historial
     setMessageHistory([...messageHistory, { type: 'user', text: inputText }]);
-
+    // Actualizar el estado para mostrar el mensaje de carga y bloquear el envío
+    setIsSending(true);
+    setLoadingMessage('Enviando mensaje...');
 
     // Mostrar el mensaje del asistente después de 10 segundos
-    checkAgenteIA(crearPrompt(inputText))
-      .then((res) => {
-        console.log(res)
-
-        if (res.includes("DERIVANDO")) {
-          console.log("La palabra 'DERIVANDO' fue encontrada en el mensaje.");
-          lectorAgenteIA({ "question": inputText }).then((response) => {
-            console.log(response);
-            setMessageHistory((prevMessageHistory) => {
-              const asistenteMessage = { type: 'asistente', text: response };
-              return [...prevMessageHistory, asistenteMessage];
-            });
-          });
-        } else {
-          setMessageHistory((prevMessageHistory) => {
-            const asistenteMessage = { type: 'asistente', text: res };
-            return [...prevMessageHistory, asistenteMessage];
-          });
-        }
-
-
+    lectorAgenteIA({ "question": inputText })
+      .then((response) => {
+        console.log(response);
+        return checkAgenteIA(crearPrompt(inputText, response))
       })
+      .then((response) => {
+        console.log(response);
+        setMessageHistory((prevMessageHistory) => {
+          const asistenteMessage = { type: 'asistente', text: response };
+          return [...prevMessageHistory, asistenteMessage];
+        });
+      })
+      .finally(() => {
+        // Limpiar el input y restaurar el estado
+        setInputText('');
+        setIsSending(false);
+        setLoadingMessage('');
+      });
     // Limpiar el input
     setInputText('');
   };
@@ -90,15 +89,23 @@ export const Chat = ({ verChat, setVerChat }) => {
           onChange={(e) => setInputText(e.target.value)}
           onKeyPress={(e) => {
             if (e.key === 'Enter') {
-              handleSendMessage();
+              if (!isSending) {
+                handleSendMessage();
+              }
             }
           }}
         />
         <div className='flex gap-3 items-center'>
           <img className='cursor-pointer' src={carita} alt="" />
-          <img id='enviar' className='cursor-pointer' src={enviar} alt="" onClick={handleSendMessage} />
+          <img
+            disabled={isSending} className='cursor-pointer' src={enviar} alt="" onClick={handleSendMessage} />
         </div>
       </section>
+      {isSending && (
+        <div className='p-3 px-4 text-center'>
+          {loadingMessage}
+        </div>
+      )}
     </div>
   )
 }
