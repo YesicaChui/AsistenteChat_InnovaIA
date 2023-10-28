@@ -5,7 +5,7 @@ import flecha from '../assets/flecha_blanca.png'
 import carita from '../assets/happy.png'
 import enviar from '../assets/send.png'
 import user from '../assets/user.png'
-import { checkAgenteIA, crearPrompt } from '../utils/utils'
+import { checkAgenteIA, crearPrompt, lectorAgenteIA } from '../utils/utils'
 
 
 export const Chat = ({ verChat, setVerChat }) => {
@@ -19,19 +19,32 @@ export const Chat = ({ verChat, setVerChat }) => {
     }
     // Agregar el mensaje del usuario al historial
     setMessageHistory([...messageHistory, { type: 'user', text: inputText }]);
-   
-    
+
+
     // Mostrar el mensaje del asistente después de 10 segundos
     checkAgenteIA(crearPrompt(inputText))
-      .then((res)=>{
+      .then((res) => {
         console.log(res)
 
-        setMessageHistory((prevMessageHistory) => {
-          const asistenteMessage = { type: 'asistente', text: res };
-          return [...prevMessageHistory, asistenteMessage];
-        });
+        if (res.includes("DERIVANDO")) {
+          console.log("La palabra 'DERIVANDO' fue encontrada en el mensaje.");
+          lectorAgenteIA({ "question": inputText }).then((response) => {
+            console.log(response);
+            setMessageHistory((prevMessageHistory) => {
+              const asistenteMessage = { type: 'asistente', text: response };
+              return [...prevMessageHistory, asistenteMessage];
+            });
+          });
+        } else {
+          setMessageHistory((prevMessageHistory) => {
+            const asistenteMessage = { type: 'asistente', text: res };
+            return [...prevMessageHistory, asistenteMessage];
+          });
+        }
+
+
       })
-     // Limpiar el input
+    // Limpiar el input
     setInputText('');
   };
 

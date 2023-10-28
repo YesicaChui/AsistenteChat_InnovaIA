@@ -1,4 +1,4 @@
-const CHATGPT_KEY = 'sk-TUAPIKEY'
+const CHATGPT_KEY = 'sk-APIKEY'
 
 export async function checkAgenteIA(mensage) {
   const bodyRequest = {
@@ -33,4 +33,20 @@ Ahora necesito solo y exclusivamente tu respuesta según las indicaciones que te
 Pregunta: ${pregunta}
 Necesito exclusivamente tu respuesta según las indicaciones dadas, es imprescindible que no me confirmes ni me digas nada adicional como por ejemplo no digas por supuesto, entendido, ni similares
   `
+}
+
+export async function lectorAgenteIA(data) {
+  const response = await fetch(
+    
+      "https://4qc5jf9r-3000.brs.devtunnels.ms/api/v1/prediction/dff9d236-c30b-4ef5-9b6b-a6da9b321560",
+      {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+      }
+  );
+  const result = await response.json();
+  return result;
 }
